@@ -21,14 +21,14 @@ export namespace SharedMap {
 
 export class SharedMap<
   K extends SharedMap.Key,
-  E extends SharedMap.Element<K>
+  E extends SharedMap.Element<K>,
 > extends SharedState<SharedMap.State<K, E>> {
   private _UpdateState: Types.UpdateSharedState;
   readonly key: SharedMap.Key;
 
   private static elementsToState<
     K extends SharedMap.Key,
-    E extends SharedMap.Element<K>
+    E extends SharedMap.Element<K>,
   >(key: K, elements: E | E[]): SharedMap.State<K, E> {
     const elementsArray = toArray(elements);
 
@@ -47,6 +47,16 @@ export class SharedMap<
     this._UpdateState = new SharedState<Types.UpdateState>({
       updateId: Symbol('Initial updater'),
     });
+
+    this.add = this.add.bind(this);
+    this.refresh = this.refresh.bind(this);
+    this.registerList = this.registerList.bind(this);
+    this.remove = this.remove.bind(this);
+    this.unregisterList = this.unregisterList.bind(this);
+    this.useElement = this.useElement.bind(this);
+    this.useElement = this.useElement.bind(this);
+    this.useList = this.useList.bind(this);
+    this.useMemo = this.useMemo.bind(this);
   }
 
   private setMap(elements: E | E[]) {
@@ -115,9 +125,9 @@ export class SharedMap<
     if (callback) callback();
   }
 
-  refresh() {
+  refresh(id?: SharedMap.Id | SharedMap.Id[]) {
     try {
-      super.refresh();
+      super.refresh(id);
       this._UpdateState.refresh();
     } catch (error) {
       throw Error.transform(error, {
@@ -131,8 +141,8 @@ export class SharedMap<
 
   reset(resetData?: SharedMap.State<K, E>) {
     try {
-      this.updateUpdateState();
       super.reset(resetData);
+      this.updateUpdateState();
     } catch (error) {
       throw Error.transform(error, {
         name: 'State Error',
@@ -149,6 +159,10 @@ export class SharedMap<
 
   unregisterList(component: React.Component) {
     this._UpdateState.unregister(component);
+  }
+
+  useElement(id: SharedMap.Id) {
+    return this.useProp(id);
   }
 
   useList() {

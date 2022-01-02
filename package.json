@@ -1,6 +1,6 @@
 {
   "name": "@huds0n/shared-map",
-  "version": "1.5.1-beta3",
+  "version": "1.6.0-beta-1",
   "description": "A global state management designed for data lists",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -21,10 +21,9 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/react": "~16.9.35",
-    "@types/react-native": "~0.63.2",
-    "@types/tinycolor2": "^1.4.2",
-    "typescript": "~4.0.0"
+    "@types/react": "^17.0.38",
+    "@types/react-native": "^0.66.11",
+    "typescript": "^4.5.4"
   },
   "publishConfig": {
     "access": "public"
