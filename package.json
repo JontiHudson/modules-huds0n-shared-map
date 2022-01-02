@@ -1,6 +1,6 @@
 {
   "name": "@huds0n/shared-map",
-  "version": "1.6.0-beta13",
+  "version": "1.6.0-beta26",
   "description": "A global state management designed for data lists",
   "main": "./index.js",
   "types": "./index.d.ts",
