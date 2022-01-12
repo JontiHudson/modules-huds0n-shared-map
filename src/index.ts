@@ -1,51 +1,38 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
-import Error from '@huds0n/error';
-import { toArray } from '@huds0n/shared-state/src/helpers';
-import { SharedState } from '@huds0n/shared-state';
+import Error from "@huds0n/error";
+import { toArray } from "@huds0n/shared-state/src/helpers";
+import { SharedState } from "@huds0n/shared-state";
 
-import * as Types from './types';
-
-export namespace SharedMap {
-  export type Key = string;
-  export type Id = string | number;
-
-  export type Element<K extends Key> = Types.Element<K>;
-  export type State<K extends Key, E extends Element<K>> = Types.State<K, E>;
-
-  export type Options<K extends Key, E extends Element<K>> = Types.Options<
-    K,
-    E
-  >;
-}
+import type { Types } from "./types";
 
 export class SharedMap<
-  K extends SharedMap.Key,
-  E extends SharedMap.Element<K>,
-> extends SharedState<SharedMap.State<K, E>> {
+  K extends Types.Key,
+  E extends Types.Element<K>
+> extends SharedState<Types.State<K, E>> {
   private _UpdateState: Types.UpdateSharedState;
-  readonly key: SharedMap.Key;
+  readonly key: Types.Key;
 
   private static elementsToState<
-    K extends SharedMap.Key,
-    E extends SharedMap.Element<K>,
-  >(key: K, elements: E | E[]): SharedMap.State<K, E> {
+    K extends Types.Key,
+    E extends Types.Element<K>
+  >(key: K, elements: E | E[]): Types.State<K, E> {
     const elementsArray = toArray(elements);
 
     return elementsArray.reduce(
       (acc, element) => ({ ...acc, [element[key]]: element }),
-      {},
+      {}
     );
   }
 
-  constructor(key: K, options: SharedMap.Options<K, E> = {}) {
+  constructor(key: K, options: Types.Options<K, E> = {}) {
     const { debugLabel, defaultData = [] } = options;
 
     super(SharedMap.elementsToState(key, defaultData), { debugLabel });
 
     this.key = key;
     this._UpdateState = new SharedState<Types.UpdateState>({
-      updateId: Symbol('Initial updater'),
+      updateId: Symbol("Initial updater"),
     });
 
     this.add = this.add.bind(this);
@@ -64,10 +51,10 @@ export class SharedMap<
   }
 
   private updateUpdateState() {
-    this._UpdateState.setState({ updateId: Symbol('Updater') });
+    this._UpdateState.setState({ updateId: Symbol("Updater") });
   }
 
-  get(id: SharedMap.Id): E | undefined {
+  get(id: Types.Id): E | undefined {
     return this.state[id];
   }
 
@@ -86,10 +73,10 @@ export class SharedMap<
       }
     } catch (error) {
       throw Error.transform(error, {
-        name: 'State Error',
-        code: 'ADD_DATA_ERROR',
-        message: 'Error adding data',
-        severity: 'HIGH',
+        name: "State Error",
+        code: "ADD_DATA_ERROR",
+        message: "Error adding data",
+        severity: "HIGH",
       });
     }
 
@@ -102,7 +89,7 @@ export class SharedMap<
 
       const removeState = elementsArray.reduce(
         (acc, element) => ({ ...acc, [element[this.key]]: undefined }),
-        {},
+        {}
       );
 
       const removedState = super.setState(removeState);
@@ -114,10 +101,10 @@ export class SharedMap<
       }
     } catch (error) {
       throw Error.transform(error, {
-        name: 'State Error',
-        code: 'REMOVE_DATA_ERROR',
-        message: 'Error removing data',
-        severity: 'HIGH',
+        name: "State Error",
+        code: "REMOVE_DATA_ERROR",
+        message: "Error removing data",
+        severity: "HIGH",
       });
     }
 
@@ -125,48 +112,48 @@ export class SharedMap<
     if (callback) callback();
   }
 
-  refresh(id?: SharedMap.Id | SharedMap.Id[]) {
+  refresh(id?: Types.Id | Types.Id[]) {
     try {
       super.refresh(id);
       this._UpdateState.refresh();
     } catch (error) {
       throw Error.transform(error, {
-        name: 'State Error',
-        code: 'REFRESH_MAP_ERROR',
-        message: 'Refresh map error',
-        severity: 'HIGH',
+        name: "State Error",
+        code: "REFRESH_MAP_ERROR",
+        message: "Refresh map error",
+        severity: "HIGH",
       });
     }
   }
 
-  reset(resetData?: SharedMap.State<K, E>) {
+  reset(resetData?: Types.State<K, E>) {
     try {
       super.reset(resetData);
       this.updateUpdateState();
     } catch (error) {
       throw Error.transform(error, {
-        name: 'State Error',
-        code: 'RESET_MAP_ERROR',
-        message: 'Reset map error',
-        severity: 'HIGH',
+        name: "State Error",
+        code: "RESET_MAP_ERROR",
+        message: "Reset map error",
+        severity: "HIGH",
       });
     }
   }
 
   registerList(component: React.Component) {
-    this._UpdateState.register(component, 'updateId');
+    this._UpdateState.register(component, "updateId");
   }
 
   unregisterList(component: React.Component) {
     this._UpdateState.unregister(component);
   }
 
-  useElement(id: SharedMap.Id) {
+  useElement(id: Types.Id) {
     return this.useProp(id);
   }
 
   useList() {
-    const [{ updateId }] = this._UpdateState.useState('updateId');
+    const [{ updateId }] = this._UpdateState.useState("updateId");
 
     return { updateId, data: this.data };
   }
@@ -177,3 +164,5 @@ export class SharedMap<
     return useMemo(() => memoFunction(data), [updateId]);
   }
 }
+
+export * as SharedMapTypes from "./types";
