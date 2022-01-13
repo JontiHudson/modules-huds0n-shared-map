@@ -165,4 +165,4 @@ export class SharedMap<
   }
 }
 
-export * as SharedMapTypes from "./types";
+export type { Types as SharedMapTypes } from "./types";
